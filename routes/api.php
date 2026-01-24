@@ -3,7 +3,7 @@
 use App\Http\Controllers\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,7 +18,17 @@ use Illuminate\Support\Facades\Route;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+Route::get('/test', function () {
+    return response()->json(['message' => 'API is working']);
+});
 
+Route::middleware('auth:api')->group(function () {
+    Route::get('/external-data', function () {
+        return response()->json([
+            'data' => 'This is some protected external data.',
+        ]);
+    });
+});
 // Dummy CRUD operations for items using UsersController
 Route::get('/items', [UsersController::class, 'index']);
 Route::get('/items/{id}', [UsersController::class, 'show']);
@@ -26,3 +36,4 @@ Route::post('/items', [UsersController::class, 'store']);
 Route::put('/items/{id}', [UsersController::class, 'update']);
 Route::patch('/items/{id}', [UsersController::class, 'patch']);
 Route::delete('/items/{id}', [UsersController::class, 'destroy']);
+Route::post('/login', [AuthenticatedSessionController::class, 'apiLogin'])->name('api.login');
