@@ -13,6 +13,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                monsta: ['"Monsta Fectro"', 'sans-serif'],
             },
         },
     },
