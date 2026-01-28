@@ -1,9 +1,8 @@
 <?php
-
 use App\Http\Controllers\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+//Log::info('Testing the log at ' . now());
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,7 +21,10 @@ use Illuminate\Support\Facades\Route;
 // Dummy CRUD operations for items using UsersController
 Route::get('/items', [UsersController::class, 'index']);
 Route::get('/items/{id}', [UsersController::class, 'show']);
-Route::post('/items', [UsersController::class, 'store']);
-Route::put('/items/{id}', [UsersController::class, 'update']);
-Route::patch('/items/{id}', [UsersController::class, 'patch']);
-Route::delete('/items/{id}', [UsersController::class, 'destroy']);
+Route::post('/login', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'store']);
+//Protected routes
+Route::middleware('auth:api')->group(function () {
+    Route::post('/items', [UsersController::class, 'store']);
+    Route::put('/items/{id}', [UsersController::class, 'update']);
+    Route::patch('/items/{id}', [UsersController::class, 'patch']);
+});
