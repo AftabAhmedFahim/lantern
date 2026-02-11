@@ -1,0 +1,14 @@
+/* Dynamic Background */
+.bg-dynamic {
+  background: radial-gradient(
+    circle at 70% 40%,
+    #0b3d66,
+    #021527,
+    #000000
+  );
+}
+
+/* Pixel Art Smoothing */
+.pixel-lantern {
+  image-rendering: pixelated;
+}

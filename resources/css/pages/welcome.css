@@ -1,0 +1,140 @@
+/* Hanging Lantern System */
+.lantern-hanger {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  transform-origin: top center;
+  animation: lantern-swing 6s linear infinite;
+  animation-delay: 1.4s;
+}
+
+.lantern-drop {
+  animation: lantern-drop 1.4s ease-out forwards;
+}
+
+.lantern-hook {
+  width: 10px;
+  height: 10px;
+  background: #6EC1FF;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(110, 193, 255, 0.8);
+  z-index: 10;
+}
+
+.lantern-chain {
+  width: 2px;
+  height: 90px;
+  background: linear-gradient(
+    to bottom,
+    #6EC1FF,
+    rgba(110, 193, 255, 0.4)
+  );
+}
+
+.lantern-body {
+  position: relative;
+  margin-top: -10px;
+}
+
+/* Lantern Animation */
+@keyframes lantern-drop {
+  0% {transform: translateY(-120vh);}
+  70% {transform: translateY(10px);}
+  85% {transform: translateY(-6px);}
+  100% {transform: translateY(0);}
+}
+
+@keyframes lantern-swing {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(4deg); }
+  50% { transform: rotate(0deg); }
+  80% { transform: rotate(-4deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/*Scroll Reveal*/
+.reveal {
+  opacity: 0;
+  transform: translateY(60px) scale(0.95);
+  transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.reveal.delay-1 { transition-delay: 0.1s; }
+.reveal.delay-2 { transition-delay: 0.2s; }
+.reveal.delay-3 { transition-delay: 0.3s; }
+.reveal.delay-4 { transition-delay: 0.4s; }
+.reveal.delay-5 { transition-delay: 0.5s; }
+.reveal.delay-6 { transition-delay: 0.6s; }
+
+/* Feature Cards */
+.feature-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem;
+  transition: all 0.4s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  border-color: #6EC1FF;
+  box-shadow: 0 20px 40px rgba(110, 193, 255, 0.2);
+}
+
+/* Page Loader */
+#page-loader {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, #001d33, #000000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 2.2s ease;
+}
+
+#page-loader.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Scroll Arrow */
+#scroll-arrow {
+    box-shadow: 0 0 12px rgba(110, 193, 255, 0.6),
+                0 0 30px rgba(110, 193, 255, 0.4);
+    animation: pulseGlow 3.8s infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 12px rgba(110, 193, 255, 0.6),
+                    0 0 30px rgba(110, 193, 255, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(110, 193, 255, 0.9),
+                    0 0 45px rgba(110, 193, 255, 0.7);
+    }
+}
+
+/* Extras */
+@media (prefers-reduced-motion: reduce) {
+  .lantern-hanger {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  body.welcome {
+    zoom: 1.35;
+  }
+}
