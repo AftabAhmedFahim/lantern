@@ -1,0 +1,32 @@
+@font-face {
+  font-family: 'PixelLettersFull';
+  src: url('../public/fonts/pixellettersfull.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MonstaFectro';
+  src: url('../public/fonts/monsta-fectro.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Kicaps';
+  src: url('../public/fonts/kicaps.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Font Utility Classes */
+.font-logo {
+  font-family: 'Monsta Fectro', sans-serif;
+}
+
+.font-body {
+  font-family: 'PixelLettersFull', sans-serif;
+}

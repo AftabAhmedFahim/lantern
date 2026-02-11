@@ -1,10 +1,9 @@
-@font-face {
-  font-family: 'Monsta Fectro';
-  src: url('/fonts/monsta-fectro.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
+/* Base */
+@import "./base/fonts.css";
+@import "./base/globals.css";
+
+/* Pages */
+@import "./pages/welcome.css";
 
 
 @tailwind base;
