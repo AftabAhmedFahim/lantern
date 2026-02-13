@@ -1,52 +1,135 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lantern — Create Account</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+<body class="auth-page-classic">
+<div id="particles-js" aria-hidden="true"></div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+<div class="auth-card-classic">
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
+    <aside class="auth-panel panel-left">
+        <div class="auth-content">
+            <a class="panel-brand brand-left" href="{{ route('welcome') }}">
+                <img src="{{ asset('images/logo.png') }}" alt="Lantern Logo">
+                <span class="font-logo">LANTERN</span>
             </a>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
+            <h2 class="panel-title">Have an account?</h2>
+            <p class="panel-text">
+                Sign in to continue your journey with Lantern.
+            </p>
+
+            <div class="panel-actions">
+                <button
+                    type="button"
+                    class="auth-btn auth-btn-outline"
+                    data-auth-slide="to-login"
+                    data-href="{{ route('login') }}"
+                >
+                    SIGN IN
+                </button>
+            </div>
         </div>
-    </form>
-</x-guest-layout>
+    </aside>
+
+    <section class="auth-side">
+        <div class="auth-content">
+            <h1 class="auth-title">Create Account</h1>
+            <p class="auth-sub">or use your email for registration</p>
+
+            <form class="auth-form" method="POST" action="{{ route('register') }}">
+                @csrf
+
+                {{-- Name --}}
+                <input
+                    class="auth-input"
+                    id="name"
+                    type="text"
+                    name="name"
+                    placeholder="Name"
+                    value="{{ old('name') }}"
+                    required
+                    autofocus
+                    autocomplete="name"
+                >
+                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+
+                {{-- Email --}}
+                <input
+                    class="auth-input"
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value="{{ old('email') }}"
+                    required
+                    autocomplete="username"
+                >
+                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+
+                {{-- Password --}}
+                <div class="input-wrap">
+                    <input
+                        class="auth-input"
+                        id="password"
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        required
+                        autocomplete="new-password"
+                    >
+
+                    <span class="caps-indicator" data-caps-for="#password" hidden>⇪</span>
+
+                    <button
+                        type="button"
+                        class="pass-toggle"
+                        data-toggle-password
+                        data-target="#password"
+                        aria-label="Show password"
+                        aria-pressed="false"
+                    >👁</button>
+                </div>
+                <x-input-error :messages="$errors->get('password')" class="mt-2" />
+
+                {{-- Confirm Password --}}
+                <div class="input-wrap">
+                    <input
+                        class="auth-input"
+                        id="password_confirmation"
+                        type="password"
+                        name="password_confirmation"
+                        placeholder="Confirm Password"
+                        required
+                        autocomplete="new-password"
+                    >
+
+                    <span class="caps-indicator" data-caps-for="#password_confirmation" hidden>⇪</span>
+
+                    <button
+                        type="button"
+                        class="pass-toggle"
+                        data-toggle-password
+                        data-target="#password_confirmation"
+                        aria-label="Show password"
+                        aria-pressed="false"
+                    >👁</button>
+                </div>
+                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+
+                <button class="auth-btn auth-btn-primary" type="submit">SIGN UP</button>
+
+            </form>
+        </div>
+    </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+</body>
+</html>

@@ -22,6 +22,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Bulgia';
+  src: url('../public/fonts/bulgia.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Font Utility Classes */
 .font-logo {
   font-family: 'Monsta Fectro', sans-serif;
