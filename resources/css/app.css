@@ -5,6 +5,7 @@
 /* Pages */
 @import "./pages/welcome.css";
 @import "./pages/auth.css";
+@import "./pages/about.css";
 
 @tailwind base;
 @tailwind components;

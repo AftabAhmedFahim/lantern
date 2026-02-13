@@ -38,7 +38,7 @@
 
             <div class="hidden md:flex items-center gap-8 text-base md:text-lg">
                 <a href="#" class="hover:text-[#6EC1FF] transition">How to Study</a>
-                <a href="#" class="hover:text-[#6EC1FF] transition">About</a>
+                <a href="{{ route('about') }}" class="hover:text-[#6EC1FF] transition">About</a>
                 <a href="{{ route('login') }}" class="hover:text-[#6EC1FF] transition">Login</a>
                 <a href="{{ route('register') }}"
                 class="hidden sm:inline-flex px-6 py-2 rounded-full bg-[#6EC1FF] text-black font-semibold hover:bg-[#4fb3ff] transition">

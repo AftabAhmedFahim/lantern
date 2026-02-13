@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'PixelLettersFull';
-  src: url('../public/fonts/pixellettersfull.ttf') format('truetype');
+  src: url('/fonts/pixellettersfull.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -8,7 +8,7 @@
 
 @font-face {
   font-family: 'MonstaFectro';
-  src: url('../public/fonts/monsta-fectro.ttf') format('truetype');
+  src: url('/fonts/monsta-fectro.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -16,7 +16,7 @@
 
 @font-face {
   font-family: 'Kicaps';
-  src: url('../public/fonts/kicaps.ttf') format('truetype');
+  src: url('/fonts/kicaps.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -24,7 +24,7 @@
 
 @font-face {
   font-family: 'Bulgia';
-  src: url('../public/fonts/bulgia.ttf') format('truetype');
+  src: url('/fonts/bulgia.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;

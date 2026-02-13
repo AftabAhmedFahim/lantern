@@ -36,4 +36,5 @@ Route::view('/notes', 'dashboard');
 Route::view('/habits', 'dashboard');
 Route::view('/achievements', 'dashboard');
 Route::view('/resources', 'dashboard');
+Route::view('/about', 'pages.about')->name('about');
 require __DIR__.'/auth.php';
