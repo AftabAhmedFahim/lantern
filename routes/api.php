@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WeeklyGoalController;
 
@@ -11,7 +12,14 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
 ], function ($router) {
+    Route::get('/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
+    Route::get('/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+
     Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/verify-email-otp', [AuthController::class, 'verifyEmailOtp']);
+    Route::post('/resend-email-otp', [AuthController::class, 'resendEmailOtp']);
+    Route::post('/forgot-password/request-otp', [AuthController::class, 'requestPasswordResetOtp']);
+    Route::post('/forgot-password/reset', [AuthController::class, 'resetPasswordWithOtp']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);

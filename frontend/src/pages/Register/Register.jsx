@@ -24,6 +24,18 @@ export default function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const handleGoogleSignIn = () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const redirectPath = import.meta.env.VITE_GOOGLE_REDIRECT_PATH || "/auth/google/redirect";
+
+    if (!apiUrl) {
+      setError("Google sign-in is unavailable right now. Please use email and password.");
+      return;
+    }
+
+    window.location.href = `${apiUrl}${redirectPath}`;
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/dashboard");
@@ -39,13 +51,7 @@ export default function Register() {
 
     // Name can't be blank or only spaces
     if (!cleanName) {
-      setError("Full name cannot be empty or only spaces.");
-      return;
-    }
-
-    // Email must end with @gmail.com (case/space safe)
-    if (!cleanEmail.endsWith("@gmail.com")) {
-      setError("Email must end with @gmail.com");
+      setError("Please enter your full name.");
       return;
     }
 
@@ -57,7 +63,7 @@ export default function Register() {
 
     // Confirm password match
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Passwords do not match. Please re-enter both fields.");
       return;
     }
 
@@ -67,18 +73,17 @@ export default function Register() {
       const result = await register(cleanName, cleanEmail, password);
 
       if (result.success) {
-        alert(
-          `🎉 Welcome to Lantern, ${cleanName}!\n\n` +
-            `Your account has been successfully created.\n` +
-            `We're excited to have you on board 🚀`
-        );
+        if (result.verificationRequired) {
+          navigate(`/verify-email?email=${encodeURIComponent(result.email || cleanEmail)}`);
+          return;
+        }
 
         navigate("/dashboard");
       } else {
         setError(result.message);
       }
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
+    } catch {
+      setError("We could not create your account right now. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -112,7 +117,12 @@ export default function Register() {
                 placeholder="enter your name"
                 required
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (error) {
+                    setError("");
+                  }
+                }}
                 autoComplete="name"
               />
             </div>
@@ -122,10 +132,15 @@ export default function Register() {
               <input
                 className="registerInput"
                 type="email"
-                placeholder="example@gmail.com"
+                placeholder="example@email.com"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) {
+                    setError("");
+                  }
+                }}
                 autoComplete="email"
               />
             </div>
@@ -139,7 +154,12 @@ export default function Register() {
                   placeholder="enter your password"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) {
+                      setError("");
+                    }
+                  }}
                   autoComplete="new-password"
                 />
                 <button
@@ -162,7 +182,12 @@ export default function Register() {
                   placeholder="confirm your password"
                   required
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (error) {
+                      setError("");
+                    }
+                  }}
                   autoComplete="new-password"
                 />
                 <button
@@ -186,6 +211,14 @@ export default function Register() {
               {loading ? "Registering..." : "Register"}
             </button>
           </form>
+
+          <div className="registerDivider" aria-hidden="true">
+            <span>or</span>
+          </div>
+
+          <button type="button" className="registerGoogleButton" onClick={handleGoogleSignIn}>
+            Continue with Google
+          </button>
 
           <p className="registerFooterText">
             Already have an account?{" "}

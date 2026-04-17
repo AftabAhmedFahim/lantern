@@ -10,6 +10,8 @@ export default function Schedule() {
     const [tasks, setTasks] = useState([]);
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [scheduleFetchError, setScheduleFetchError] = useState('');
+    const [feedback, setFeedback] = useState(null);
     const [draggedTaskId, setDraggedTaskId] = useState(null);
     const dragStateRef = useRef({ taskId: null, originalDueDate: null, droppedOnCalendar: false });
 
@@ -27,8 +29,19 @@ export default function Schedule() {
         fetchScheduleData();
     }, []);
 
+    useEffect(() => {
+        if (!feedback) return undefined;
+
+        const timeoutId = setTimeout(() => {
+            setFeedback(null);
+        }, 5000);
+
+        return () => clearTimeout(timeoutId);
+    }, [feedback]);
+
     const fetchScheduleData = async () => {
         setLoading(true);
+        setScheduleFetchError('');
         try {
             const [subjectsRes, tasksRes, coursesRes] = await Promise.all([
                 api.get('/subjects'),
@@ -41,6 +54,9 @@ export default function Schedule() {
             setCourses(coursesRes.data || []);
         } catch (error) {
             console.error('Failed to load schedule data:', error);
+            const message = extractErrorMessage(error, 'Failed to load schedule data. Please refresh and try again.');
+            setScheduleFetchError(message);
+            setFeedback({ type: 'error', message });
         } finally {
             setLoading(false);
         }
@@ -151,8 +167,13 @@ export default function Schedule() {
 
         try {
             await api.patch(`${ENDPOINTS.TASKS}/${draggedTaskId}`, { due_date: dateKey });
+            setFeedback({ type: 'success', message: `Task scheduled for ${dateKey}.` });
         } catch (error) {
             console.error('Failed to reschedule task:', error);
+            setFeedback({
+                type: 'error',
+                message: extractErrorMessage(error, 'Failed to reschedule task. Please try again.')
+            });
             setTasks((currentTasks) => currentTasks.map((item) => (
                 item.id === draggedTaskId ? { ...item, due_date: task.due_date || null } : item
             )));
@@ -181,8 +202,13 @@ export default function Schedule() {
 
             try {
                 await api.patch(`${ENDPOINTS.TASKS}/${task.id}`, { due_date: null });
+                setFeedback({ type: 'success', message: 'Task removed from schedule.' });
             } catch (error) {
                 console.error('Failed to remove task from schedule:', error);
+                setFeedback({
+                    type: 'error',
+                    message: extractErrorMessage(error, 'Failed to remove task from schedule. Please try again.')
+                });
                 setTasks((currentTasks) => currentTasks.map((item) => (
                     item.id === task.id ? { ...item, due_date: dragState.originalDueDate } : item
                 )));
@@ -194,16 +220,25 @@ export default function Schedule() {
     };
 
     if (loading) {
-        return (
-            <div className="schedule-page schedule-page--loading">
-                <h1 className="schedule-title">Schedule</h1>
-                <p className="schedule-subtitle">Loading your schedule...</p>
-            </div>
-        );
+        return <ScheduleLoadingSkeleton />;
     }
 
     return (
         <div className="schedule-page">
+            {feedback && (
+                <div className={`schedule-feedback schedule-feedback--${feedback.type}`} role="status" aria-live="polite">
+                    <span>{feedback.message}</span>
+                    <button
+                        type="button"
+                        className="schedule-feedback-close"
+                        aria-label="Dismiss message"
+                        onClick={() => setFeedback(null)}
+                    >
+                        &times;
+                    </button>
+                </div>
+            )}
+
             <div className="schedule-hero">
                 <div>
                     <h1 className="schedule-title">Schedule</h1>
@@ -214,6 +249,15 @@ export default function Schedule() {
                     <strong>{today.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
                 </div>
             </div>
+
+            {scheduleFetchError && (
+                <div className="schedule-error-panel" role="alert">
+                    <span>{scheduleFetchError}</span>
+                    <button type="button" className="schedule-error-retry-btn" onClick={fetchScheduleData}>
+                        Retry
+                    </button>
+                </div>
+            )}
 
             <div className="schedule-layout">
                 <aside className="schedule-sidebar">
@@ -352,6 +396,95 @@ export default function Schedule() {
     );
 }
 
+function ScheduleLoadingSkeleton() {
+    return (
+        <div className="schedule-page schedule-page--loading" aria-busy="true" aria-live="polite">
+            <div className="schedule-hero">
+                <div className="schedule-loading-copy">
+                    <div className="schedule-skeleton schedule-skeleton-title" />
+                    <div className="schedule-skeleton schedule-skeleton-subtitle" />
+                </div>
+                <div className="schedule-today-badge schedule-today-badge--loading">
+                    <div className="schedule-skeleton schedule-skeleton-today-label" />
+                    <div className="schedule-skeleton schedule-skeleton-today-value" />
+                </div>
+            </div>
+
+            <div className="schedule-layout">
+                <aside className="schedule-sidebar">
+                    <div className="schedule-sidebar-header">
+                        <div className="schedule-skeleton schedule-skeleton-section-title" />
+                        <div className="schedule-skeleton schedule-skeleton-section-meta" />
+                    </div>
+
+                    <div className="schedule-subject-list">
+                        {[1, 2, 3].map((subjectIndex) => (
+                            <div key={`loading-subject-${subjectIndex}`} className="schedule-subject-card schedule-subject-card--loading">
+                                <div className="schedule-subject-header-row">
+                                    <div className="schedule-subject-heading">
+                                        <div className="schedule-skeleton schedule-skeleton-dot" />
+                                        <div className="schedule-skeleton schedule-skeleton-subject-name" />
+                                    </div>
+                                    <div className="schedule-skeleton schedule-skeleton-task-count" />
+                                </div>
+                                <div className="schedule-task-stack">
+                                    {[1, 2].map((taskIndex) => (
+                                        <div key={`loading-task-${subjectIndex}-${taskIndex}`} className="schedule-task-chip schedule-task-chip--loading">
+                                            <div className="schedule-skeleton schedule-skeleton-chip-label" />
+                                            <div className="schedule-skeleton schedule-skeleton-chip-title" />
+                                            <div className="schedule-skeleton schedule-skeleton-chip-meta" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </aside>
+
+                <section className="schedule-calendar-panel">
+                    <div className="schedule-calendar-header">
+                        <div>
+                            <div className="schedule-skeleton schedule-skeleton-section-title" />
+                            <div className="schedule-skeleton schedule-skeleton-calendar-subtext" />
+                        </div>
+                        <div className="schedule-calendar-legend">
+                            <div className="schedule-skeleton schedule-skeleton-legend-pill" />
+                            <div className="schedule-skeleton schedule-skeleton-legend-pill schedule-skeleton-legend-pill--wide" />
+                        </div>
+                    </div>
+
+                    <div className="schedule-calendar-scroll">
+                        <div className="schedule-calendar-frame">
+                            <div className="schedule-weekday-row">
+                                {DAYS.map((day) => (
+                                    <div key={`loading-weekday-${day}`} className="schedule-weekday-cell">
+                                        <div className="schedule-skeleton schedule-skeleton-weekday" />
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="schedule-calendar-grid">
+                                {Array.from({ length: 35 }).map((_, index) => (
+                                    <div key={`loading-cell-${index}`} className="schedule-day-cell schedule-day-cell--loading">
+                                        <div className="schedule-day-cell-header">
+                                            <div className="schedule-skeleton schedule-skeleton-day-number" />
+                                            <div className="schedule-skeleton schedule-skeleton-drop-hint" />
+                                        </div>
+                                        <div className="schedule-day-task-list">
+                                            <div className="schedule-skeleton schedule-skeleton-day-task" />
+                                            <div className="schedule-skeleton schedule-skeleton-day-task schedule-skeleton-day-task--short" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    );
+}
+
 function findSubjectName(task, subjectGroups) {
     const match = subjectGroups.find((subject) => subject.tasks.some((item) => item.id === task.id));
     return match?.name || '';
@@ -392,4 +525,25 @@ function sortTasksByDisplayOrder(taskList) {
         if (orderDifference !== 0) return orderDifference;
         return left.id - right.id;
     });
+}
+
+function extractErrorMessage(error, fallbackMessage) {
+    const responseData = error?.response?.data;
+
+    if (responseData?.errors && typeof responseData.errors === 'object') {
+        const firstValidationError = Object.values(responseData.errors)
+            .flat()
+            .find(Boolean);
+        if (firstValidationError) return firstValidationError;
+    }
+
+    if (typeof responseData?.message === 'string' && responseData.message.trim()) {
+        return responseData.message;
+    }
+
+    if (typeof responseData === 'string' && responseData.trim()) {
+        return responseData;
+    }
+
+    return fallbackMessage;
 }

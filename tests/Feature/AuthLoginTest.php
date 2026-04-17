@@ -26,6 +26,10 @@ class AuthLoginTest extends TestCase
             'password' => Hash::make('password123'),
         ]);
 
+        User::where('email', $email)->update([
+            'email_verified_at' => now(),
+        ]);
+
         $response = $this->postJson('/api/auth/login', [
             'email' => $email,
             'password' => 'password123',
@@ -33,6 +37,7 @@ class AuthLoginTest extends TestCase
 
         $response
             ->assertOk()
+            ->assertCookie('token')
             ->assertJsonStructure([
                 'token_type',
                 'expires_in',
@@ -57,6 +62,54 @@ class AuthLoginTest extends TestCase
             ->assertStatus(401)
             ->assertJson([
                 'error' => 'Unauthorized',
+            ]);
+    }
+
+    public function test_unverified_local_user_cannot_login(): void
+    {
+        $email = 'ci-login-' . uniqid() . '@example.com';
+
+        User::create([
+            'name' => 'Unverified User',
+            'email' => $email,
+            'password' => Hash::make('password123'),
+            'auth_provider' => 'local',
+            'email_verified_at' => null,
+        ]);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => $email,
+            'password' => 'password123',
+        ]);
+
+        $response
+            ->assertStatus(403)
+            ->assertJson([
+                'error' => 'Please verify your email before logging in.',
+            ]);
+    }
+
+    public function test_google_only_user_cannot_login_with_password(): void
+    {
+        $email = 'ci-login-google-' . uniqid() . '@example.com';
+
+        User::create([
+            'name' => 'Google Only User',
+            'email' => $email,
+            'password' => Hash::make('server-generated-password'),
+            'google_id' => 'ci-google-id-' . uniqid(),
+            'auth_provider' => 'google',
+        ]);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => $email,
+            'password' => 'password123',
+        ]);
+
+        $response
+            ->assertStatus(422)
+            ->assertJson([
+                'error' => 'This account uses Google sign-in. Please click Continue with Google.',
             ]);
     }
 }

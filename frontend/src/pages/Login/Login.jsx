@@ -1,6 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 import "./Login.css";
@@ -11,6 +11,7 @@ import loginBg from "../../assets/images/login-reg-bg.png";
 export default function Login() {
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +26,49 @@ export default function Login() {
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
+
+  const oauthError = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const errorCode = params.get("error");
+    const debugHint = params.get("debug");
+    const debugSuffix = import.meta.env.DEV && debugHint ? ` (Debug: ${debugHint})` : "";
+
+    if (!errorCode) {
+      return "";
+    }
+
+    if (errorCode === "google_sync_failed") {
+      return "We could not complete Google sign-in. Please try again.";
+    }
+
+    if (errorCode === "google_auth_failed") {
+      return `Google sign-in failed. Please try again.${debugSuffix}`;
+    }
+
+    if (errorCode === "google_auth_misconfigured") {
+      return `Google sign-in is temporarily unavailable. Please try again later.${debugSuffix}`;
+    }
+
+    if (errorCode === "google_auth_incomplete_profile") {
+      return "Your Google account is missing required profile information. Please try a different account.";
+    }
+
+    return "Google sign-in could not be completed. Please try again.";
+  }, [location.search]);
+
+  const displayError = error || oauthError;
+
+  const handleGoogleSignIn = () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const redirectPath = import.meta.env.VITE_GOOGLE_REDIRECT_PATH || "/auth/google/redirect";
+
+    if (!apiUrl) {
+      setError("Google sign-in is unavailable right now. Please try email and password.");
+      return;
+    }
+
+    window.location.href = `${apiUrl}${redirectPath}`;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,7 +99,7 @@ export default function Login() {
             <p className="loginSubtitle">Sign in to your account</p>
           </div>
 
-          {error && <div className="loginError">{error}</div>}
+          {displayError && <div className="loginError">{displayError}</div>}
 
           <form onSubmit={handleSubmit} className="loginForm">
             <div className="loginField">
@@ -66,7 +110,12 @@ export default function Login() {
                 placeholder="email@example.com"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) {
+                    setError("");
+                  }
+                }}
                 autoComplete="email"
               />
             </div>
@@ -78,10 +127,15 @@ export default function Login() {
                 <input
                   className="loginInput passwordInput"
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="********"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) {
+                      setError("");
+                    }
+                  }}
                   autoComplete="current-password"
                 />
 
@@ -100,6 +154,12 @@ export default function Login() {
               </div>
             </div>
 
+            <div className="loginForgotPasswordWrap">
+              <Link to="/forgot-password" className="loginForgotPasswordLink">
+                Forgot Password?
+              </Link>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
@@ -108,6 +168,14 @@ export default function Login() {
               {loading ? "Signing In..." : "Login"}
             </button>
           </form>
+
+          <div className="loginDivider" aria-hidden="true">
+            <span>or</span>
+          </div>
+
+          <button type="button" className="loginGoogleButton" onClick={handleGoogleSignIn}>
+            Continue with Google
+          </button>
 
           <p className="loginFooterText">
             Don&apos;t have an account?{" "}
